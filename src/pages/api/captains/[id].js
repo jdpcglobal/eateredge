@@ -1,5 +1,5 @@
 import connectDB from "../../../app/lib/dbconnect";
-import Captain from "../../../models/Captain";
+import Captain from "../../../models/Capoid";
 
 export default async function handler(req, res) {
   await connectDB();
