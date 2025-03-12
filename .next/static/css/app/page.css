@@ -463,7 +463,8 @@ transition: 0.3s;
   width: 100%;
   max-width: 80px;
   height: 80px;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
   border-radius: 50%;
   margin-bottom: 12px;
   border: 3px solid tomato;
@@ -564,7 +565,8 @@ transition: 0.3s;
   .item-image img {
     width: 64px; /* Adjust as needed */
     height: 64px;
-    object-fit: cover;
+    -o-object-fit: cover;
+       object-fit: cover;
     border-radius: 4px;
   }
   
@@ -737,9 +739,7 @@ transition: 0.3s;
     overflow: hidden;
     display: inline-flex
 ;
-    -webkit-box-align: center;
     align-items: center;
-    -webkit-box-pack: justify;
     justify-content: center;
     box-shadow: rgba(40, 44, 63, 0.08) 0px 3px 8px;
     font-family: Gilroy;
@@ -1365,6 +1365,12 @@ span.icon.success-icon{
   border-color: tomato; /* Optional: Highlight border when focused */
 }
 
+.otp-input input::-moz-placeholder {
+  font-size: 18px;
+  color: gray; /* Adjust placeholder color */
+  letter-spacing: 5px; /* Add spacing to match the placeholder style */
+}
+
 .otp-input input::placeholder {
   font-size: 18px;
   color: gray; /* Adjust placeholder color */
@@ -1445,6 +1451,11 @@ span.icon.success-icon{
 }
 img.login-cross:hover {
   transform: scale(1.5);
+}
+
+.otp-input input::-moz-placeholder {
+  font-size: 24px; /* Adjust this value to change the dot size */
+  letter-spacing: 4px; /* Keep the spacing between the dots */
 }
 
 .otp-input input::placeholder {
@@ -1563,18 +1574,15 @@ img.login-cross:hover {
 .Toastify__toast {
   --y: 0;
   position: relative;
-  -ms-touch-action: none;
-      touch-action: none;
+  touch-action: none;
   min-height: var(--toastify-toast-min-height);
   box-sizing: border-box;
   margin-bottom: 1rem;
   padding: 8px;
   border-radius: var(--toastify-toast-bd-radius);
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-  display: -ms-flexbox;
   display: flex;
-  -ms-flex-pack: justify;
-      justify-content: space-between;
+  justify-content: space-between;
   max-height: var(--toastify-toast-max-height);
   font-family: var(--toastify-font-family);
   cursor: default;
@@ -1636,26 +1644,19 @@ img.login-cross:hover {
 }
 .Toastify__toast-body {
   margin: auto 0;
-  -ms-flex: 1 1 auto;
-      flex: 1 1 auto;
+  flex: 1 1 auto;
   padding: 6px;
-  display: -ms-flexbox;
   display: flex;
-  -ms-flex-align: center;
-      align-items: center;
+  align-items: center;
 }
 .Toastify__toast-body > div:last-child {
   word-break: break-word;
-  -ms-flex: 1;
-      flex: 1;
+  flex: 1;
 }
 .Toastify__toast-icon {
-  -webkit-margin-end: 10px;
-          margin-inline-end: 10px;
+  margin-inline-end: 10px;
   width: 20px;
-  -ms-flex-negative: 0;
-      flex-shrink: 0;
-  display: -ms-flexbox;
+  flex-shrink: 0;
   display: flex;
 }
 
@@ -1735,8 +1736,7 @@ img.login-cross:hover {
   cursor: pointer;
   opacity: 0.7;
   transition: 0.3s ease;
-  -ms-flex-item-align: start;
-      align-self: flex-start;
+  align-self: flex-start;
   z-index: 1;
 }
 .Toastify__close-button--light {

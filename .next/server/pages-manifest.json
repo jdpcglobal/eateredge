@@ -5,7 +5,5 @@
   "/api/headerImage": "pages/api/headerImage.js",
   "/api/items": "pages/api/items.js",
   "/api/categories": "pages/api/categories.js",
-  "/api/send-otp": "pages/api/send-otp.js",
-  "/api/verify-otp": "pages/api/verify-otp.js",
   "/api/cart/get": "pages/api/cart/get.js"
 }
