@@ -1,5 +1,22 @@
 {
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
-  "/_document": "pages/_document.js"
+  "/_document": "pages/_document.js",
+  "/Cart": "pages/Cart.js",
+  "/api/getAddresses": "pages/api/getAddresses.js",
+  "/api/getCartInfo": "pages/api/getCartInfo.js",
+  "/api/getCartItems": "pages/api/getCartItems.js",
+  "/api/adminSettings": "pages/api/adminSettings.js",
+  "/api/updateCartItem": "pages/api/updateCartItem.js",
+  "/api/saveCartTotal": "pages/api/saveCartTotal.js",
+  "/Order": "pages/Order.js",
+  "/api/address": "pages/api/address.js",
+  "/api/calculateDeliveryFee": "pages/api/calculateDeliveryFee.js",
+  "/api/saveCheckoutAddress": "pages/api/saveCheckoutAddress.js",
+  "/orderpayment": "pages/orderpayment.js",
+  "/api/paymentshow": "pages/api/paymentshow.js",
+  "/api/order": "pages/api/order.js",
+  "/api/couponstatusupdate": "pages/api/couponstatusupdate.js",
+  "/MyOrder": "pages/MyOrder.js",
+  "/api/getOrders": "pages/api/getOrders.js"
 }
