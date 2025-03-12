@@ -21,8 +21,8 @@ jobs:
           lfs: false
       - name: Install dependencies
         run: npm install --legacy-peer-deps
-      - name: Install JWT
-        run: npm install jwt-decode
+      #- name: Install JWT
+      #  run: npm install jwt-decode
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
