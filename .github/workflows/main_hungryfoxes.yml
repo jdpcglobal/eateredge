@@ -64,4 +64,5 @@ jobs:
           app-name: 'hungryfoxes'
           slot-name: 'Production'
           package: output
+          overwrite: true
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_98F45D864FC742F3B332DB3C68769426 }}
