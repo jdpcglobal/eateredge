@@ -1,4 +1,4 @@
-name: Build and deploy Node.js app to Azure Web App - hungryfoxes
+name: Deploy Node.js app to Azure Web App - hungryfoxes
 
 on:
   push:
@@ -10,29 +10,16 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: read # Required for actions/checkout
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Upload source code for deployment
-        uses: actions/upload-artifact@v4
-        with:
-          name: nextjs-source
-          path: |
-            .  # Upload entire source code
-            !node_modules  # Exclude node_modules
-            !.next  # Exclude the build directory
-
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: nextjs-source
-
-      - name: Deploy to Azure Web App
+      - name: 'Deploy to Azure App Service'
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'hungryfoxes'
           slot-name: 'Production'
-          package: .
+          package: . # Deploys only the source code, Azure will build it
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_98F45D864FC742F3B332DB3C68769426 }}
