@@ -31,10 +31,10 @@ jobs:
 
       - name: Prepare artifact for deployment
         run: |
-          mkdir output
+          mkdir -p output/.next output/public
           cp -R .next/standalone/* output/
-          cp -R public output/public
-          cp -R .next/static output/.next/static
+          cp -R public output/public || true  # Avoid errors if the public folder does not exist
+          cp -R .next/static output/.next/static || true  # Ensure the static folder is copied only if it exists
           
       - name: Archive production artifacts
         run: |
