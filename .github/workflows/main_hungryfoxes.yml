@@ -24,15 +24,12 @@ jobs:
           node-version: '18.x'
           cache: 'npm'
 
-      - name: npm install, build, and test
+      - name: 'Build Next.js App'
         run: |
-          npm install
-          npm run build --if-present
-
-      - name: Prepare artifact for deployment
-        run: |
-          mkdir output
-          cp -R .next public package.json output/
+            npm install
+            npm run build
+            mkdir -p output
+            cp -r .next package.json package-lock.json public next.config.js output/
           
       - name: Archive production artifacts
         run: |
