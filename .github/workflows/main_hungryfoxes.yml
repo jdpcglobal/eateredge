@@ -28,6 +28,7 @@ jobs:
         run: |
           npm install
           npm run build --if-present
+          cp -r .next out
 
       - name: Archive production artifacts
         run: |
