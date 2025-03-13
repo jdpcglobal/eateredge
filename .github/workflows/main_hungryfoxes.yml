@@ -28,8 +28,13 @@ jobs:
         run: |
             npm install
             npm run build
-            mkdir -p output
-            cp -r .next package.json package-lock.json public next.config.mjs output/
+
+      - name: Prepare artifact for deployment
+        run: |
+          mkdir output
+          cp -R .next/standalone/* output/
+          cp -R public output/public
+          cp -R .next/static output/.next/static
           
       - name: Archive production artifacts
         run: |
