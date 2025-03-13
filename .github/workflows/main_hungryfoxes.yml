@@ -29,7 +29,7 @@ jobs:
             npm install
             npm run build
             mkdir -p output
-            cp -r .next package.json package-lock.json public next.config.js output/
+            cp -r .next package.json package-lock.json public next.config.mjs output/
           
       - name: Archive production artifacts
         run: |
