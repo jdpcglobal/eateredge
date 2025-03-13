@@ -30,11 +30,15 @@ jobs:
           npm run build --if-present
           cp -r .next out
 
+      - name: Prepare artifact for deployment
+        run: |
+          mkdir output
+          cp -R .next public package.json next.config.js output/
+          
       - name: Archive production artifacts
         run: |
-          mkdir -p output
-          cp -r .next public package.json package-lock.json output/
-          zip -r release.zip output/
+          cd output
+          zip -r ../release.zip .
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
