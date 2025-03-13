@@ -29,22 +29,22 @@ jobs:
             npm install
             npm run build
 
-      #- name: Prepare artifact for deployment
-      # run: |
-      #    mkdir -p output/.next output/public
-      #    cp -R .next/standalone/* output/
-      #    cp -R public output/public || true  # Avoid errors if the public folder does not exist
-      #    cp -R .next/static output/.next/static || true  # Ensure the static folder is copied only if it exists
+      - name: Prepare artifact for deployment
+        run: |
+          mkdir -p output/.next output/public
+          cp -R .next/standalone/* output/
+          cp -R public output/public || true  # Avoid errors if the public folder does not exist
+          cp -R .next/static output/.next/static || true  # Ensure the static folder is copied only if it exists
           
-      #- name: Archive production artifacts
-      #  run: |
-      #    cd output
-      #    zip -r ../release.zip .
       - name: Archive production artifacts
         run: |
-          mkdir -p output
-          cp -r .next public package.json package-lock.json node_modules output/
-          zip -r release.zip output/
+          cd output
+          zip -r ../release.zip .
+      #- name: Archive production artifacts
+      #  run: |
+      #    mkdir -p output
+      #    cp -r .next public package.json package-lock.json node_modules output/
+      #    zip -r release.zip output/
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
