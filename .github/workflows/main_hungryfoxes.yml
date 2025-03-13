@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy Node.js app to Azure Web App - hungryfoxes
 
 on:
@@ -10,69 +7,32 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Node.js version
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
-          cache: 'npm'
-
-      - name: 'Build Next.js App'
-        run: |
-            npm install
-            npm run build
-
-      #- name: Prepare artifact for deployment
-      # run: |
-      #    mkdir -p output/.next output/public
-      #    cp -R .next/standalone/* output/
-      #    cp -R public output/public || true  # Avoid errors if the public folder does not exist
-      #    cp -R .next/static output/.next/static || true  # Ensure the static folder is copied only if it exists
-          
-      #- name: Archive production artifacts
-      #  run: |
-      #    cd output
-      #    zip -r ../release.zip .
-      - name: Archive production artifacts
-        run: |
-          mkdir -p output
-          cp -r .next public package.json package-lock.json node_modules output/
-          zip -r release.zip output/
-
-      - name: Upload artifact for deployment job
+      - name: Upload source code for deployment
         uses: actions/upload-artifact@v4
         with:
-          name: nextjs-app
-          path: release.zip
+          name: nextjs-source
+          path: |
+            .  # Upload entire source code
+            !node_modules  # Exclude node_modules
+            !.next  # Exclude the build directory
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
-    steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: nextjs-app
+          name: nextjs-source
 
-      - name: Unzip artifact for deployment
-        run: unzip release.zip -d output
-      
-      - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'hungryfoxes'
           slot-name: 'Production'
-          package: output
+          package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_98F45D864FC742F3B332DB3C68769426 }}
