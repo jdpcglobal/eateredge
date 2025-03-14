@@ -74,5 +74,5 @@ jobs:
         with:
           app-name: 'hungryfoxes'
           slot-name: 'Production'
-          package: .next
+          package: '.next'
           
