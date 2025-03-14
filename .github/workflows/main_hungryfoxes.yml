@@ -28,7 +28,7 @@ jobs:
           npm install
           npm run build || (echo "Build failed!" && exit 1)
       - name: List files (debug)
-        run: ls -la
+        run: ls -la .next
 
       - name: Zip artifact for deployment
         run: zip release.zip .next -r
