@@ -74,5 +74,5 @@ jobs:
         with:
           app-name: 'hungryfoxes'
           slot-name: 'Production'
-          package: .next
+          package: output
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_98F45D864FC742F3B332DB3C68769426 }}
