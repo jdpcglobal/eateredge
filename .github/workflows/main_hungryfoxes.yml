@@ -22,29 +22,16 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
-          cache: 'npm'
 
-      - name: 'Build Next.js App'
+      - name: npm install, build, and test
         run: |
-            npm install --production
-            npm run build
+          npm install
+          npm run build || (echo "Build failed!" && exit 1)
+      - name: List files (debug)
+        run: ls -la .next
 
-      - name: Prepare artifact for deployment
-        run: |
-          mkdir -p output/.next output/public
-          cp -R .next/standalone/* output/
-          cp -R public output/public || true  # Avoid errors if the public folder does not exist
-          cp -R .next/static output/.next/static || true  # Ensure the static folder is copied only if it exists
-          
-      - name: Archive production artifacts
-        run: |
-          cd output
-          zip -r ../release.zip .
-      #- name: Archive production artifacts
-      #  run: |
-      #    mkdir -p output
-      #    cp -r .next public package.json package-lock.json node_modules output/
-      #    zip -r release.zip output/
+      - name: Zip artifact for deployment
+        run: zip release.zip .next -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -58,7 +45,10 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
@@ -66,13 +56,23 @@ jobs:
           name: nextjs-app
 
       - name: Unzip artifact for deployment
-        run: unzip release.zip -d output
+        run: unzip release.zip
       
+      - name: List downloaded files (debug)
+        run: ls -la .next
+      
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_595A8B05B2CF431EBC0C11F8C21AFD40 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A1BE32B1E4AA454A96C1A6B9B160A830 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CB91B1D0D26842FCA840558CDD66C57F }}
+
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'hungryfoxes'
           slot-name: 'Production'
-          package: output
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_98F45D864FC742F3B332DB3C68769426 }}
+          package: .
+          
