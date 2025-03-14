@@ -27,6 +27,8 @@ jobs:
         run: |
           npm install
           npm run build --if-present
+      - name: List files (debug)
+        run: ls -la
 
       - name: Zip artifact for deployment
         run: zip release.zip .next -r
@@ -48,6 +50,8 @@ jobs:
       contents: read #This is required for actions/checkout
 
     steps:
+      - name: List downloaded files (debug)
+        run: ls -la .next
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
