@@ -31,15 +31,12 @@ jobs:
         run: ls -la .next
 
       - name: Zip artifact for deployment
-        run: |
-          mkdir -p deploy_package
-          cp -r .next package.json package-lock.json node_modules public deploy_package/
-
+        run: zip next.zip ./* .next -qr
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: nextjs-app
-          path: deploy_package
+          path: next.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -56,10 +53,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: nextjs-app
-          path: deploy_package
+          path: next.zip
 
       - name: List downloaded files (debug)
-        run: ls -la deploy_package
+        run: ls -la next.zip
       
       - name: Login to Azure
         uses: azure/login@v2
@@ -74,5 +71,5 @@ jobs:
         with:
           app-name: 'hungryfoxes'
           slot-name: 'Production'
-          package: deploy_package
+          package: next.zip
           
