@@ -57,11 +57,10 @@ jobs:
           name: nextjs-app
           
       - name: Unzip artifact for deployment
-        #run: unzip next.zip -d output
-        run: unzip next.zip -d /home/chaman/wwwroot
+        run: unzip next.zip -d output
 
       - name: List downloaded files (debug)
-        run: ls -la /home/chaman/wwwroot
+        run: ls -la output
       
       - name: Login to Azure
         uses: azure/login@v2
