@@ -67,11 +67,13 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A1BE32B1E4AA454A96C1A6B9B160A830 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CB91B1D0D26842FCA840558CDD66C57F }}
 
+      - name: Zip deployment package
+        run: cd output && zip -r ../deploy.zip .  
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'hungryfoxes'
           slot-name: 'Production'
-          package: output
+          package: deploy.zip
           
