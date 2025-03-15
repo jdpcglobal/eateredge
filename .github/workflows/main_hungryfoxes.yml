@@ -53,7 +53,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: nextjs-app
-          path: next.zip
+          
       - name: Unzip artifact for deployment
         run: unzip next.zip -d output
 
