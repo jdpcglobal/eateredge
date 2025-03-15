@@ -31,7 +31,7 @@ jobs:
         run: ls -la .next
 
       - name: Zip artifact for deployment
-        run: zip -r next.zip .next package.json package-lock.json node_modules public
+        run: zip next.zip ./* .next -qr
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
@@ -73,5 +73,5 @@ jobs:
         with:
           app-name: 'hungryfoxes'
           slot-name: 'Production'
-          package: output
+          package: output/*
           
