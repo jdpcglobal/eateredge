@@ -1,0 +1,58 @@
+name: Deploy Next.js to Amazon Linux 2023
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to EC2
+        run: |
+          ssh ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
+            # Update Amazon Linux
+            sudo yum update -y
+
+            # Install dependencies
+            sudo yum install -y nodejs git unzip nginx
+
+            # Install PM2 (if not installed)
+            if ! command -v pm2 &> /dev/null; then
+              sudo npm install -g pm2
+            fi
+
+            # Navigate to deployment directory
+            cd /home/ec2-user/app || mkdir -p /home/ec2-user/app && cd /home/ec2-user/app
+
+            # Pull latest code
+            git pull origin main
+
+            # Install dependencies and build
+            npm install
+            npm run build
+
+            # Restart Next.js app with PM2
+            pm2 delete next-app || true
+            pm2 start npm --name "next-app" -- start
+
+            # Save PM2 process
+            pm2 save
+            pm2 startup
+
+            # Restart Nginx
+            sudo systemctl restart nginx
+          EOF
