@@ -22,11 +22,11 @@ jobs:
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Compress project before transfer
-        run: zip -r app.zip . -x "node_modules/*" ".git/*" ".next/*"
+        run: zip -r app.zip . -x "node_modules/*" ".git/*" ".next/*" "uploads/*"
 
-      - name: Transfer compressed file to EC2
-        run: scp -o StrictHostKeyChecking=no app.zip ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/
-
+      - name: Transfer compressed file to EC2 using rsync
+        run: |
+          rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no" app.zip ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/
 
       - name: Deploy to EC2
         run: |
