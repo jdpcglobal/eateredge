@@ -14,17 +14,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: SSH into EC2 and deploy
-        run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
-            mkdir -p /home/ec2-user/app
-            cd /home/ec2-user/app
-            if [ ! -d ".git" ]; then
-              git clone ${{ secrets.REPO_URL }} .
-            else
-              git pull origin main
-            fi
-          EOF
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
