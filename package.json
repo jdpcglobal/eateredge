@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "electron": "electron ."
+    "lint": "next lint"
   },
   "dependencies": {
     "@actions/core": "^1.6.0",
@@ -23,7 +22,6 @@
     "axios": "^1.7.4",
     "bcrypt": "^5.1.1",
     "cookie": "^1.0.2",
-    "electron-builder": "^25.1.8",
     "escpos": "^3.0.0-alpha.6",
     "formidable": "^3.5.1",
     "framer-motion": "^12.4.4",
@@ -51,7 +49,6 @@
     "react-spring": "^9.7.5",
     "react-toastify": "^10.0.6",
     "sharp": "^0.33.5",
-    "twilio": "^5.2.2",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
@@ -59,7 +56,6 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.4.21",
-    "electron": "^33.3.1",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
     "postcss": "^8.5.3",
