@@ -21,18 +21,30 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Transfer files to EC2
-        run: |
-          scp -o StrictHostKeyChecking=no -r . ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/app
+      - name: Compress project before transfer
+        run: zip -r app.zip . -x "node_modules/*" ".git/*" ".next/*"
+
+      - name: Transfer compressed file to EC2
+        run: scp -o StrictHostKeyChecking=no app.zip ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/
+
 
       - name: Deploy to EC2
         run: |
           ssh ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
-            # Update Amazon Linux
-            sudo yum update -y
+            # Remove old project files
+            rm -rf /home/ec2-user/app
 
-            # Install dependencies
-            sudo yum install -y nodejs git unzip nginx
+            # Create new app directory and extract files
+            mkdir -p /home/ec2-user/app
+            unzip /home/ec2-user/app.zip -d /home/ec2-user/app
+            rm /home/ec2-user/app.zip  # Clean up zip file
+
+            # Navigate to deployment directory
+            cd /home/ec2-user/app
+            
+            # Install dependencies and build
+            npm install
+            npm run build
 
             # Install PM2 (if not installed)
             if ! command -v pm2 &> /dev/null; then
@@ -41,13 +53,6 @@ jobs:
 
             # Navigate to deployment directory
             cd /home/ec2-user/app || mkdir -p /home/ec2-user/app && cd /home/ec2-user/app
-
-            # Pull latest code
-            git pull origin main
-
-            # Install dependencies and build
-            npm install
-            npm run build
 
             # Restart Next.js app with PM2
             pm2 delete next-app || true
