@@ -16,10 +16,10 @@ jobs:
 
       - name: Set up SSH key
         run: |
-          sudo mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          sudo chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} | sudo tee -a ~/.ssh/known_hosts > /dev/null
+          mkdir -p $HOME/.ssh
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > $HOME/.ssh/id_rsa
+          chmod 600 $HOME/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> $HOME/.ssh/known_hosts
 
       - name: Compress project before transfer
         run: zip -r app.zip . -x "node_modules/*" ".git/*" ".next/*" "uploads/*"
