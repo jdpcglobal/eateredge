@@ -12,7 +12,7 @@ const nextConfig = {
       reactStrictMode: true,
       trailingSlash: true,
       output: 'standalone',  // Ensures Next.js can work as a self-contained app
-      assetPrefix: isProd ? '/_next/' : '', // Ensure correct paths
+      assetPrefix: '/_next/' , // Ensure correct paths
       experimental: {
         outputFileTracingRoot: __dirname, // Fixes missing assets on deployment
       },
