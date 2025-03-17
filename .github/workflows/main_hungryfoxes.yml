@@ -55,7 +55,7 @@ jobs:
           name: node-app
 
       - name: Unzip artifact for deployment
-        run: unzip release.zip -d output
+        run: unzip -o release.zip -d output
       - name: List downloaded files (debug)
         run: ls -la output
       - name: Login to Azure
