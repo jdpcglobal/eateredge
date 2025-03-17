@@ -3,8 +3,11 @@ const nextConfig = {
     eslint: {
         ignoreDuringBuilds: true,
       },
-      distDir: 'build', 
       output: 'standalone',
+      trailingSlash: false,
+      experimental: {
+        outputFileTracingRoot: __dirname,
+      },
 };
 
 export default nextConfig;
