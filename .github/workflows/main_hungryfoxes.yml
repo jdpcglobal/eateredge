@@ -58,8 +58,8 @@ jobs:
         run: unzip release.zip -d output
 
       - name: List downloaded files (debug)
-        ls -la output/.next/
-        
+        ls -la 'output/.next/'
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
