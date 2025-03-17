@@ -4,8 +4,8 @@ const nextConfig = {
         ignoreDuringBuilds: true,
       },
       output: 'standalone',
+      assetPrefix: '.',
       trailingSlash: false,
-      assetPrefix: './',
       
 };
 
