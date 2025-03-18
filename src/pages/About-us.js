@@ -8,7 +8,7 @@ import LoginPopup from '../components/loginpopup/loginpopup1.js';
 
 import './AboutUs2.css';
 
-const TermsAndConditions = () => {
+const AboutUs= () => {
   const [showLogin, setShowLogin] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -111,4 +111,4 @@ const TermsAndConditions = () => {
   );
 };
 
-export default TermsAndConditions;
+export default AboutUs;
