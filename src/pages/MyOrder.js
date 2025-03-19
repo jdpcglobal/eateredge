@@ -25,6 +25,16 @@ const CartPage = () => {
   const [selectedOrderId, setSelectedOrderId] = useState(null); // Track order for review
   const [orderItemNames, setOrderItemNames] = useState(''); // State for order item names
 
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true); // Set to true when the component mounts on the client side
+  }, []);
+
+  if (!isClient) {
+    return null; // Return null or a loading spinner during SSR
+  }
+  
   const router = useRouter();
 
  

@@ -21,6 +21,15 @@ const AboutUs= () => {
     { name: 'Pasta', description: 'A perfect blend of Italian flavors.', image: '/food_26.png' },
     { name: 'Ice Cream ', description: 'A treat for every sweet tooth.', image: '/food_12.png' },
   ];
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true); // Set to true when the component mounts on the client side
+  }, []);
+
+  if (!isClient) {
+    return null; // Return null or a loading spinner during SSR
+  }
   useEffect(() => {
     const userToken = localStorage.getItem('token');
     if (userToken) {
