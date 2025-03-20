@@ -29,7 +29,9 @@ jobs:
           npm run build 
 
       - name: Zip artifact for deployment
-        run: zip -r release.zip .next public package.json package-lock.json next.config.mjs server.js
+        run:
+          shopt -s dotglob
+          zip -r release.zip .next public package.json package-lock.json next.config.mjs server.js
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
