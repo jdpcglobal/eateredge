@@ -21,15 +21,16 @@ jobs:
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
-          node-version: '18.x'
+          node-version: '22.x'
 
       - name: npm install, build, and test
         run: |
-          npm install 
+          npm install
           npm run build --if-present
-          
+          npm run test --if-present
+
       - name: Zip artifact for deployment
-        run: zip -r release.zip .next public package.json package-lock.json next.config.mjs server.js
+        run: zip release.zip ./* -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -54,15 +55,14 @@ jobs:
           name: node-app
 
       - name: Unzip artifact for deployment
-        run: unzip -o release.zip -d output
-      - name: List downloaded files (debug)
-        run: ls -la output/.next
+        run: unzip release.zip
+      
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_66DC59710EA6461584746A7A6118EC1B }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_B285C5FB73C84A41A2F586638C0DFE4D }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5C330CD6683143339A102BCD440E2EAA }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4276B7986EC24F1B85D6CBB259711F06 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_33BF49FD3DAB4B2CA1A3D76EFEA576A3 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_DA9092EFE6F84C9BACF2CFC97C604718 }}
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
@@ -70,5 +70,5 @@ jobs:
         with:
           app-name: 'hungryfoxes'
           slot-name: 'Production'
-          package: 'output'
+          package: .
           
