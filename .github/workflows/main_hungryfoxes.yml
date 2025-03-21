@@ -30,7 +30,6 @@ jobs:
 
       - name: Zip artifact for deployment
         run:
-          shopt -s dotglob
           zip -r release.zip .next public package.json package-lock.json next.config.mjs server.mjs
 
       - name: Upload artifact for deployment job
