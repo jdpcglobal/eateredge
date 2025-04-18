@@ -1,10 +1,4 @@
-performance.mark('next-start');
-import path from 'path'
-import { fileURLToPath } from 'url'
-import module from 'module'
-const require = module.createRequire(import.meta.url)
-const __dirname = fileURLToPath(new URL('.', import.meta.url))
-
+const path = require('path')
 
 const dir = path.join(__dirname)
 
