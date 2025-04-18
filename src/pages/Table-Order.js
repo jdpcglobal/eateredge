@@ -45,7 +45,7 @@ const MainPage = () => {
         >
           <div className="table-column">
             <div className="column-box">
-              <img src="table8.webp" alt="Add Table" className="column-img" />
+              <img src="../table8.webp" alt="Add Table" className="column-img" />
               <p className="column-name">Add Table</p>
             </div>
           </div>
@@ -56,7 +56,7 @@ const MainPage = () => {
         >
           <div className="table-column">
             <div className="column-box">
-              <img src="table1.png" alt="View Table" className="column-img" />
+              <img src="../table1.png" alt="View Table" className="column-img" />
               <p className="column-name">View Table</p>
             </div>
           </div>
@@ -67,7 +67,7 @@ const MainPage = () => {
         >
           <div className="table-column">
             <div className="column-box">
-              <img src="table3.png" alt="Add Table Order" className="column-img" />
+              <img src="../table3.png" alt="Add Table Order" className="column-img" />
               <p className="column-name">Add Table Order</p>
             </div>
           </div>
@@ -78,7 +78,7 @@ const MainPage = () => {
         >
           <div className="table-column">
             <div className="column-box">
-              <img src="table2.png" alt="View Table Order" className="column-img" />
+              <img src="../table2.png" alt="View Table Order" className="column-img" />
               <p className="column-name">View Table Orders</p>
             </div>
           </div>
