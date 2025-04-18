@@ -25,12 +25,12 @@ jobs:
 
       - name: npm install, build, and test
         run: |
-          npm install --legacy-peer-deps
-          npm run build 
+          npm install
+          npm run build --if-present
+          npm run test --if-present
 
       - name: Zip artifact for deployment
-        run:
-          zip -r release.zip .next public package.json package-lock.json next.config.mjs server.mjs
+        run: zip release.zip ./* -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -55,16 +55,14 @@ jobs:
           name: node-app
 
       - name: Unzip artifact for deployment
-        run: unzip -o release.zip -d output
-      - name: List downloaded files (debug)
-        run: ls -la output/.next
+        run: unzip release.zip
       
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_A143B2B9882848018EB60CFB1B9C29B5 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_46832A53253540DBA3C67E1EBD9FE9D2 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_516B48AAA9B449A5ACF10EB63CA09D79 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_EF1A66A21BE34C81AD8CB0EC4B5D4E08 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_51C599D279544B249D5E0CEE05EEBB12 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FE096262CD2644B68FC72744CBB9856D }}
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
@@ -72,5 +70,5 @@ jobs:
         with:
           app-name: 'hungryfoxes'
           slot-name: 'Production'
-          package: 'output'
+          package: .
           
