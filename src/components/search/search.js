@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
-import { jwtDecode } from "jwt-decode";
+import jwt_decode from 'jwt-decode';
 
 const SearchPopup = ({ setShowSearchPopup }) => {
   const [isMounted, setIsMounted] = useState(false);

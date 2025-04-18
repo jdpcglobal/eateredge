@@ -1,186 +1,274 @@
 import React, { useState, useEffect } from 'react';
-import '../../pages/print/printer.css'; 
+import axios from 'axios';
+import '../../pages/print/printer.css';
 
 const Printer = () => {
-  const [printers, setPrinters] = useState([]);
-  const [deliveryBillPrinters, setDeliveryBillPrinters] = useState([]);
-  const [tableBillPrinters, setTableBillPrinters] = useState([]);
-  const [kitchenBillPrinters, setKitchenBillPrinters] = useState([]);
+  const [availablePrinters, setAvailablePrinters] = useState([]);
+  const [deliveryPrinters, setDeliveryPrinters] = useState([]);
+  const [tablePrinters, setTablePrinters] = useState([]);
+  const [kitchenPrinters, setKitchenPrinters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [qzInitialized, setQzInitialized] = useState(false);
 
+  // Fetch printers from database
+  const fetchPrinters = async () => {
+    try {
+      const [deliveryRes, tableRes, kitchenRes] = await Promise.all([
+        axios.get('/api/printers/delivery'),
+        axios.get('/api/printers/table'),
+        axios.get('/api/printers/kitchen')
+      ]);
+      
+      setDeliveryPrinters(deliveryRes.data);
+      setTablePrinters(tableRes.data);
+      setKitchenPrinters(kitchenRes.data);
+    } catch (err) {
+      setError('Failed to fetch printers from database');
+      console.error(err);
+    }
+  };
+
+  // Initialize QZ Tray and fetch printers
   useEffect(() => {
-    const fetchPrinters = async () => {
+    const initializeQZTray = async () => {
       try {
-        const response = await fetch("/api/printers");
-        if (!response.ok) {
-          throw new Error("Failed to fetch printer details");
+        if (typeof qz === 'undefined') {
+          throw new Error("QZ Tray is not loaded. Make sure QZ Tray is installed and running.");
         }
-        const data = await response.json();
-        setPrinters(data.printers);
+  
+        // Check if QZ Tray is already connected
+        if (qz.websocket.isActive()) {
+          console.log("QZ Tray is already connected.");
+          setQzInitialized(true);
+          return;
+        }
+  
+        qz.api.setPromiseType(resolver => new Promise(resolver));
+        await qz.websocket.connect();
+        setQzInitialized(true);
+  
+        const printers = await qz.printers.find();
+        setAvailablePrinters(printers);
+        await fetchPrinters();
+        setLoading(false);
       } catch (err) {
         setError(err.message);
-      } finally {
         setLoading(false);
       }
     };
-
-    fetchPrinters();
+  
+    if (typeof qz === 'undefined') {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/qz-tray@2.1.1';
+      script.onload = initializeQZTray;
+      script.onerror = () => setError("Failed to load QZ Tray script");
+      document.head.appendChild(script);
+    } else {
+      initializeQZTray();
+    }
+  
+    return () => {
+      if (qz.websocket.isActive()) {
+        qz.websocket.disconnect();
+        console.log("QZ Tray disconnected.");
+      }
+    };
   }, []);
   
 
-  const handlePrinterChange = (type, value) => {
-    if (value === '') return;
+  const handleAddPrinter = async (type, printerName) => {
+    try {
+      const response = await axios.post(`/api/printers/${type}`, { 
+        name: printerName 
+      });
 
-    if (type === 'delivery') {
-      setDeliveryBillPrinters([...deliveryBillPrinters, value]);
-    } else if (type === 'table') {
-      setTableBillPrinters([...tableBillPrinters, value]);
-    } else if (type === 'kitchen') {
-      setKitchenBillPrinters([...kitchenBillPrinters, value]);
+      // Update the appropriate state
+      switch (type) {
+        case 'delivery':
+          setDeliveryPrinters([...deliveryPrinters, response.data]);
+          break;
+        case 'table':
+          setTablePrinters([...tablePrinters, response.data]);
+          break;
+        case 'kitchen':
+          setKitchenPrinters([...kitchenPrinters, response.data]);
+          break;
+      }
+    } catch (err) {
+      setError(`Failed to add ${type} printer: ${err.response?.data?.message || err.message}`);
     }
   };
 
-  const handlePrinterDelete = (type, index) => {
-    if (type === 'delivery') {
-      const updatedPrinters = deliveryBillPrinters.filter((_, i) => i !== index);
-      setDeliveryBillPrinters(updatedPrinters);
-    } else if (type === 'table') {
-      const updatedPrinters = tableBillPrinters.filter((_, i) => i !== index);
-      setTableBillPrinters(updatedPrinters);
-    } else if (type === 'kitchen') {
-      const updatedPrinters = kitchenBillPrinters.filter((_, i) => i !== index);
-      setKitchenBillPrinters(updatedPrinters);
+  const handleDeletePrinter = async (type, printerId) => {
+    try {
+      await axios.delete(`/api/printers/${type}/${printerId}`);
+  
+      // Update the appropriate state
+      switch (type) {
+        case 'delivery':
+          setDeliveryPrinters(deliveryPrinters.filter(p => p._id !== printerId));
+          break;
+        case 'table':
+          setTablePrinters(tablePrinters.filter(p => p._id !== printerId));
+          break;
+        case 'kitchen':
+          setKitchenPrinters(kitchenPrinters.filter(p => p._id !== printerId));
+          break;
+        default:
+          console.error("Invalid printer type");
+      }
+    } catch (err) {
+      setError(`Failed to delete ${type} printer: ${err.response?.data?.message || err.message}`);
     }
   };
+  
 
-  const getAvailablePrinters = (selectedPrinters) => {
-    return printers.filter(
-      (printer) => !selectedPrinters.includes(printer.name)
-    );
+  const getAvailablePrinters = (assignedPrinters) => {
+    const assignedNames = assignedPrinters.map(p => p.name);
+    return availablePrinters.filter(name => !assignedNames.includes(name));
   };
+
+  if (loading) {
+    return <div className="loading">
+      <div className="spinner"></div>
+      <span>Loading printers...</span>
+    </div>;
+  }
 
   return (
     <>
-    <div className="ConnectedPrinters">Connected Printers</div>
-    <div className="printer-container">
-     
-      {loading ? (
-        <div className="loading">
-          <div className="spinner"></div>
-          <span>Loading...</span>
-        </div>
-      ) : (
-        <>
-          <div className="printer-container1">
-            <h3 className="printer-title1">Select Printers for Delivery, Table, and Kitchen Bills</h3>
-            <div className="printer-columns1">
-              {/* Delivery Bill Column */}
-              <div className="printer-column1">
-                <h4 className="column-title1">Delivery Bill</h4>
-                {deliveryBillPrinters.map((selectedPrinter, index) => (
-                  <div key={`delivery-${index}`} className="printer-row1 selected1">
-                    <label className="printer-label1">Printer {index + 1}:</label>
-                    <span className="printer-name1">{selectedPrinter}</span>
-                    <span
-                      className="delete-icon1"
-                      onClick={() => handlePrinterDelete('delivery', index)}
-                    >
-                      <img src="bin.png" alt="Delete" className="delete-icon-image1" />
-                    </span>
-                  </div>
-                ))}
-                {getAvailablePrinters(deliveryBillPrinters).length > 0 && (
-                  <div className="printer-row1">
-                    <label className="printer-label1">Add Printer:</label>
-                    <select
-                      className="printer-select1"
-                      onChange={(e) => handlePrinterChange('delivery', e.target.value)}
-                      value=""
-                    >
-                      <option value="">-- Select Printer --</option>
-                      {getAvailablePrinters(deliveryBillPrinters).map((printer, i) => (
-                        <option key={`delivery-option-${i}`} value={printer.name}>
-                          {printer.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-              </div>
+      <div className="ConnectedPrinters">Connected Printers</div>
+      <div className="printer-container">
+        {error && (
+          <div className="error-message">
+            <strong>Error:</strong> {error}
+            <p>Please ensure QZ Tray is installed and running.</p>
+          </div>
+        )}
 
-              {/* Table Bill Column */}
-              <div className="printer-column1">
-                <h4 className="column-title1">Table Bill</h4>
-                {tableBillPrinters.map((selectedPrinter, index) => (
-                  <div key={`table-${index}`} className="printer-row1 selected1">
-                    <label className="printer-label1">Printer {index + 1}:</label>
-                    <span className="printer-name1">{selectedPrinter}</span>
-                    <span
-                      className="delete-icon1"
-                      onClick={() => handlePrinterDelete('table', index)}
-                    >
-                      <img src="bin.png" alt="Delete" className="delete-icon-image1" />
-                    </span>
-                  </div>
-                ))}
-                {getAvailablePrinters(tableBillPrinters).length > 0 && (
-                  <div className="printer-row1">
-                    <label className="printer-label1">Add Printer:</label>
-                    <select
-                      className="printer-select1"
-                      onChange={(e) => handlePrinterChange('table', e.target.value)}
-                      value=""
-                    >
-                      <option value="">-- Select Printer --</option>
-                      {getAvailablePrinters(tableBillPrinters).map((printer, i) => (
-                        <option key={`table-option-${i}`} value={printer.name}>
-                          {printer.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-              </div>
+        <div className="printer-container1">
+          <h3 className="printer-title1">Select Printers for Delivery, Table, and Kitchen Bills</h3>
+          <div className="printer-columns1">
+            {/* Delivery Bill Column */}
+            <div className="printer-column1">
+              <h4 className="column-title1">Delivery Bill</h4>
+              {deliveryPrinters.map((printer, index) => (
+                <div key={`delivery-${printer._id}`} className="printer-row1 selected1">
+                  <label className="printer-label1">Printer {index + 1}:</label>
+                  <span className="printer-name1">{printer.name}</span>
+                  <span
+                    className="delete-icon1"
+                    onClick={() => handleDeletePrinter('delivery', printer._id)}
+                  >
+                    <img src="bin.png" alt="Delete" className="delete-icon-image1" />
+                  </span>
+                </div>
+              ))}
+              {getAvailablePrinters(deliveryPrinters).length > 0 && (
+                <div className="printer-row1">
+                  <label className="printer-label1">Add Printer:</label>
+                  <select
+                    className="printer-select1"
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        handleAddPrinter('delivery', e.target.value);
+                        e.target.value = '';
+                      }
+                    }}
+                    value=""
+                  >
+                    <option value="">-- Select Printer --</option>
+                    {getAvailablePrinters(deliveryPrinters).map((printer, i) => (
+                      <option key={`delivery-option-${i}`} value={printer}>
+                        {printer}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
 
-              
-              <div className="printer-column1">
-                <h4 className="column-title1">Kitchen Bill</h4>
-                {kitchenBillPrinters.map((selectedPrinter, index) => (
-                  <div key={`kitchen-${index}`} className="printer-row1 selected1">
-                    <label className="printer-label1">Printer {index + 1}:</label>
-                    <span className="printer-name1">{selectedPrinter}</span>
-                    <span
-                      className="delete-icon1"
-                      onClick={() => handlePrinterDelete('kitchen', index)}
-                    >
-                      <img src="bin.png" alt="Delete" className="delete-icon-image1" />
-                    </span>
-                  </div>
-                ))}
-                {getAvailablePrinters(kitchenBillPrinters).length > 0 && (
-                  <div className="printer-row1">
-                    <label className="printer-label1">Add Printer:</label>
-                    <select
-                      className="printer-select1"
-                      onChange={(e) => handlePrinterChange('kitchen', e.target.value)}
-                      value=""
-                    >
-                      <option value="">-- Select Printer --</option>
-                      {getAvailablePrinters(kitchenBillPrinters).map((printer, i) => (
-                        <option key={`kitchen-option-${i}`} value={printer.name}>
-                          {printer.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-              </div>
+            {/* Table Bill Column */}
+            <div className="printer-column1">
+              <h4 className="column-title1">Table Bill</h4>
+              {tablePrinters.map((printer, index) => (
+                <div key={`table-${printer._id}`} className="printer-row1 selected1">
+                  <label className="printer-label1">Printer {index + 1}:</label>
+                  <span className="printer-name1">{printer.name}</span>
+                  <span
+                    className="delete-icon1"
+                    onClick={() => handleDeletePrinter('table', printer._id)}
+                  >
+                    <img src="bin.png" alt="Delete" className="delete-icon-image1" />
+                  </span>
+                </div>
+              ))}
+              {getAvailablePrinters(tablePrinters).length > 0 && (
+                <div className="printer-row1">
+                  <label className="printer-label1">Add Printer:</label>
+                  <select
+                    className="printer-select1"
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        handleAddPrinter('table', e.target.value);
+                        e.target.value = '';
+                      }
+                    }}
+                    value=""
+                  >
+                    <option value="">-- Select Printer --</option>
+                    {getAvailablePrinters(tablePrinters).map((printer, i) => (
+                      <option key={`table-option-${i}`} value={printer}>
+                        {printer}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {/* Kitchen Bill Column */}
+            <div className="printer-column1">
+              <h4 className="column-title1">Kitchen Bill</h4>
+              {kitchenPrinters.map((printer, index) => (
+                <div key={`kitchen-${printer._id}`} className="printer-row1 selected1">
+                  <label className="printer-label1">Printer {index + 1}:</label>
+                  <span className="printer-name1">{printer.name}</span>
+                  <span
+                    className="delete-icon1"
+                    onClick={() => handleDeletePrinter('kitchen', printer._id)}
+                  >
+                    <img src="bin.png" alt="Delete" className="delete-icon-image1" />
+                  </span>
+                </div>
+              ))}
+              {getAvailablePrinters(kitchenPrinters).length > 0 && (
+                <div className="printer-row1">
+                  <label className="printer-label1">Add Printer:</label>
+                  <select
+                    className="printer-select1"
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        handleAddPrinter('kitchen', e.target.value);
+                        e.target.value = '';
+                      }
+                    }}
+                    value=""
+                  >
+                    <option value="">-- Select Printer --</option>
+                    {getAvailablePrinters(kitchenPrinters).map((printer, i) => (
+                      <option key={`kitchen-option-${i}`} value={printer}>
+                        {printer}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           </div>
-        </>
-      )}
-    </div>
+        </div>
+      </div>
     </>
   );
 };

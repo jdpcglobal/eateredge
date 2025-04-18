@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './fooddisplay2.css';
-import { jwtDecode } from "jwt-decode"; // Ensure you have this package installed
+import jwt_decode from 'jwt-decode'; // Ensure you have this package installed
 
 const FoodDisplay = ({ category, setShowCart, isLoggedIn, setShowLogin }) => {
   const [foodItems, setFoodItems] = useState([]);

@@ -1,211 +1,447 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import "./captain.css";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiEdit2, FiTrash2, FiPlus, FiX, FiCheck, FiUser } from 'react-icons/fi';
+import './captain.css';
 
 const Captain = () => {
-  const [selectedCaptain, setSelectedCaptain] = useState("");
+  // State management
+  const [selectedCaptainId, setSelectedCaptainId] = useState('');
   const [captains, setCaptains] = useState([]);
   const [tables, setTables] = useState([]);
   const [selectedTables, setSelectedTables] = useState([]);
   const [editId, setEditId] = useState(null);
-  const [pin, setPin] = useState(["", "", "", ""]);
-  const [vectoryCaptains, setVectoryCaptains] = useState([]);
+  const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  useEffect(() => {
-    fetchCaptains();
-    fetchTables();
-    fetchVectory();
-  }, []);
-
-  const fetchVectory = async () => {
+  // Fetch all data
+  const fetchData = async () => {
     try {
-      const response = await axios.get("/api/vectory");
-      setVectoryCaptains(response.data.data);
-    } catch (error) {
-      console.error("Error fetching vectory captains:", error);
-    }
-  };
+      setLoading(true);
+      setError('');
+      
+      const [captainsRes, tablesRes, assignmentsRes] = await Promise.all([
+        axios.get('/api/captain2'),
+        axios.get('/api/tablesview'),
+        axios.get('/api/vectory')
+      ]);
 
-  const fetchCaptains = async () => {
-    try {
-      const response = await axios.get("/api/captain2");
-      setCaptains(response.data.data);
-    } catch (error) {
-      console.error("Error fetching captains:", error);
-    }
-  };
-
-  const fetchTables = async () => {
-    try {
-      const response = await axios.get("/api/tablesview");
-      setTables(response.data.tables.map((table) => ({
-        name: table.tableName,
+      // Process captains data
+      const captainsData = captainsRes.data?.data?.data || [];
+      setCaptains(captainsData.map(c => ({
+        _id: c._id,
+        name: c.name
       })));
-    } catch (error) {
-      console.error("Error fetching tables:", error);
+
+      // Process tables data
+      setTables(
+        Array.isArray(tablesRes.data?.tables) 
+          ? tablesRes.data.tables.map(t => ({ name: t.tableName })) 
+          : []
+      );
+
+      // Process assignments
+      setAssignments(
+        Array.isArray(assignmentsRes.data?.data)
+          ? assignmentsRes.data.data.map(assignment => ({
+              ...assignment,
+              captainName: captainsData.find(c => c._id === assignment.captain)?.name || 'Unknown Captain'
+            }))
+          : []
+      );
+
+    } catch (err) {
+      console.error('Fetch error:', err);
+      setError('Failed to load data. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // Get currently assigned tables (excluding the one being edited)
   const getAssignedTables = () => {
-    let assignedTables = new Set();
-    vectoryCaptains.forEach((captain) => {
-      if (captain._id !== editId) {
-        captain.tables.forEach((table) => assignedTables.add(table));
+    const assignedTables = new Set();
+    assignments.forEach(assignment => {
+      if (assignment._id !== editId && assignment.tables) {
+        assignment.tables.forEach(table => assignedTables.add(table));
       }
     });
     return assignedTables;
   };
 
+  // Check if captain is assigned
+  const isCaptainAssigned = (captainId) => {
+    return assignments.some(a => a.captain === captainId && a._id !== editId);
+  };
+
+  // Handle table selection
   const handleTableSelect = (tableName) => {
-    setSelectedTables((prev) => {
-      if (prev.includes(tableName)) {
-        return prev.filter((t) => t !== tableName);
-      } else {
-        return [...prev, tableName];
-      }
-    });
+    setSelectedTables(prev =>
+      prev.includes(tableName)
+        ? prev.filter(t => t !== tableName)
+        : [...prev, tableName]
+    );
   };
 
-  const handleSaveCaptain = async () => {
-    if (!selectedCaptain || pin.some((p) => p === "")) return;
+  // Save assignment
+  const handleSaveAssignment = async () => {
+    if (!selectedCaptainId) {
+      setError('Please select a captain');
+      return;
+    }
 
-    const newCaptain = {
-      name: selectedCaptain,
-      pin: pin.join(""),
-      tables: selectedTables,
-    };
+    if (selectedTables.length === 0) {
+      setError('Please select at least one table');
+      return;
+    }
 
     try {
+      setLoading(true);
+      setError('');
+
+      const assignmentData = {
+        captain: selectedCaptainId,
+        tables: selectedTables
+      };
+
+      let response;
       if (editId) {
-        await axios.put("/api/vectory", { id: editId, ...newCaptain });
+        response = await axios.put(`/api/vectory?id=${editId}`, assignmentData);
       } else {
-        await axios.post("/api/vectory", newCaptain);
+        response = await axios.post('/api/vectory', assignmentData);
       }
-      fetchVectory();
-      resetForm();
-    } catch (error) {
-      console.error("Error saving captain:", error);
+
+      if (response.data?.success) {
+        setSuccess(editId ? 'Assignment updated' : 'Assignment created');
+        await fetchData();
+        resetForm();
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        throw new Error(response.data?.message || 'Operation failed');
+      }
+    } catch (err) {
+      console.error('Save error:', err);
+      setError(err.response?.data?.message || err.message || 'Failed to save');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleEdit = (id) => {
-    const captain = vectoryCaptains.find((c) => c._id === id);
-    if (!captain) return;
-
-    setSelectedCaptain(captain.name);
-    setPin(captain.pin.split(""));
-    setSelectedTables(captain.tables || []);
-    setEditId(id);
+  // Edit assignment
+  const handleEdit = (assignment) => {
+    setSelectedCaptainId(assignment.captain);
+    setSelectedTables(assignment.tables || []);
+    setEditId(assignment._id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this captain?")) return;
+  // Delete assignment
+  const handleDelete = async (assignmentId) => {
+    if (!window.confirm('Are you sure you want to delete this assignment?')) {
+      return;
+    }
+
     try {
-      await axios.delete("/api/vectory", { data: { id } });
-      fetchVectory();
-    } catch (error) {
-      console.error("Error deleting captain:", error);
+      setLoading(true);
+      const response = await axios.delete(`/api/vectory?id=${assignmentId}`);
+      
+      if (response.data?.success) {
+        setSuccess('Assignment deleted');
+        await fetchData();
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        throw new Error(response.data?.message || 'Deletion failed');
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+      setError(err.response?.data?.message || err.message || 'Failed to delete');
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Reset form
   const resetForm = () => {
-    setSelectedCaptain("");
-    setPin(["", "", "", ""]);
+    setSelectedCaptainId('');
     setSelectedTables([]);
     setEditId(null);
+    setError('');
   };
 
   const assignedTables = getAssignedTables();
-  const availableCaptains = captains.map((captain) => ({
-    ...captain,
-    assigned: vectoryCaptains.some((c) => c.name === captain.name),
-  }));
 
   return (
-    <div className="captain-container">
-      <h2>Assign Captain</h2>
-
-      {loading ? (
-        <p className="loading-text">Loading...</p>
-      ) : (
-        <>
-         <select onChange={(e) => setSelectedCaptain(e.target.value)} value={selectedCaptain}>
-            <option value="">Select Captain</option>
-            {availableCaptains.map((captain, index) => (
-              <option key={index} value={captain.name} disabled={captain.assigned}>
-                {captain.name} {captain.assigned ? "(Assigned)" : ""}
-              </option>
-            ))}
-          </select>
-
-          <div className="pin-container">
-            <label>Create PIN:</label>
-            <div className="pin-inputs">
-              {pin.map((value, index) => (
-                <input
-                  key={index}
-                  id={`pin-${index}`}
-                  type="text"
-                  maxLength="1"
-                  value={value}
-                  onChange={(e) => {
-                    if (/^[0-9]?$/.test(e.target.value)) {
-                      const newPin = [...pin];
-                      newPin[index] = e.target.value;
-                      setPin(newPin);
-                      if (e.target.value && index < 3) document.getElementById(`pin-${index + 1}`).focus();
-                    }
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div className="table-selection">
-            <h3>Select Tables:</h3>
-            <div className="tables">
-              {tables.map((table, index) => {
-                const isSelected = selectedTables.includes(table.name);
-                const isAssigned = assignedTables.has(table.name);
-
-                return (
-                  <div
-                    key={index}
-                    className={`table ${isSelected ? "selected" : ""} ${isAssigned ? "disabled" : ""}`}
-                    onClick={() => !isAssigned && handleTableSelect(table.name)}
-                  >
-                    {table.name}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <button className="create-button" onClick={handleSaveCaptain}>
-            {editId ? "Update Captain" : "Create Captain"}
-          </button>
-
-          <div className="captain-list">
-            <h3>Assigned Captains</h3>
-            {vectoryCaptains.length === 0 ? (
-              <p className="no-data">No captains assigned.</p>
-            ) : (
-              vectoryCaptains.map((captain) => (
-                <div key={captain._id} className="captain-item">
-                  <span>
-                    {captain.name} (PIN: {captain.pin}) - Tables: {captain.tables.join(", ")}
-                  </span>
-                  <button onClick={() => handleEdit(captain._id)}>Update</button>
-                  <button onClick={() => handleDelete(captain._id)}>Delete</button>
-                </div>
-              ))
+    <div className="captain-page">
+      <div className="container">
+        {/* Assignment Form */}
+        <motion.div 
+          className="form-card"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="form-header">
+            <h2>{editId ? 'Edit Assignment' : 'Create New Assignment'}</h2>
+            {editId && (
+              <button 
+                onClick={resetForm} 
+                className="icon-btn"
+                aria-label="Cancel edit"
+              >
+                <FiX size={20} />
+              </button>
             )}
           </div>
-        </>
-      )}
+
+          {/* Status messages */}
+          <AnimatePresence>
+            {(error || success) && (
+              <motion.div
+                className={`alert ${error ? 'error' : 'success'}`}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="alert-content">
+                  {error || success}
+                  <button
+                    onClick={() => (error ? setError('') : setSuccess(''))}
+                    className="alert-close"
+                    aria-label="Close message"
+                  >
+                    <FiX size={16} />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Captain selection */}
+          <div className="form-group">
+            <label>Select Captain</label>
+            <div className="select-wrapper">
+              <select
+                value={selectedCaptainId}
+                onChange={(e) => setSelectedCaptainId(e.target.value)}
+                disabled={loading}
+                className="styled-select"
+              >
+                <option value="">Select a captain</option>
+                {captains.map((captain) => {
+                  const isAssigned = isCaptainAssigned(captain._id);
+                  return (
+                    <option
+                      key={captain._id}
+                      value={captain._id}
+                      disabled={isAssigned}
+                      className={isAssigned ? 'assigned-option' : ''}
+                    >
+                      {captain.name}
+                      {isAssigned && ' (Assigned)'}
+                    </option>
+                  );
+                })}
+              </select>
+              <div className="select-arrow"></div>
+            </div>
+            {captains.length > 0 && assignments.length === captains.length && (
+              <div className="info-message">
+                All captains are currently assigned. Edit an existing assignment to make changes.
+              </div>
+            )}
+          </div>
+
+          {/* Table selection */}
+          <div className="form-group">
+            <label>Assign Tables</label>
+            {tables.length === 0 ? (
+              <motion.div
+                className="no-tables-msg"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                No tables available
+              </motion.div>
+            ) : (
+              <motion.div 
+                className="tables-grid"
+                layout
+              >
+                {tables.map((table) => {
+                  const isSelected = selectedTables.includes(table.name);
+                  const isAssigned = assignedTables.has(table.name);
+
+                  return (
+                    <motion.div
+                      key={table.name}
+                      className={`table-card ${isSelected ? 'selected' : ''} ${
+                        isAssigned ? 'disabled' : ''
+                      }`}
+                      onClick={() => !isAssigned && handleTableSelect(table.name)}
+                      whileHover={!isAssigned ? { scale: 1.05, boxShadow: '0 4px 8px rgba(0,0,0,0.1)' } : {}}
+                      whileTap={!isAssigned ? { scale: 0.98 } : {}}
+                      layout
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {table.name}
+                      {isSelected && (
+                        <motion.span 
+                          className="checkmark"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                        >
+                          <FiCheck />
+                        </motion.span>
+                      )}
+                      {isAssigned && (
+                        <motion.span 
+                          className="assigned-badge"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                        >
+                          Assigned
+                        </motion.span>
+                      )}
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            )}
+          </div>
+
+          {/* Submit button */}
+          <motion.button
+            onClick={handleSaveAssignment}
+            disabled={loading || !selectedCaptainId || selectedTables.length === 0}
+            className="submit-btn"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            {loading ? (
+              <span className="btn-loading">
+                <span className="spinner"></span>
+                Processing...
+              </span>
+            ) : editId ? (
+              <>
+                <FiEdit2 size={18} /> Update Assignment
+              </>
+            ) : (
+              <>
+                <FiPlus size={18} /> Create Assignment
+              </>
+            )}
+          </motion.button>
+        </motion.div>
+
+        {/* Assignments List */}
+        <motion.div 
+          className="list-card"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          <div className="list-header">
+            <h3>Current Assignments</h3>
+            <div className="total-badge">
+              {assignments.length} {assignments.length === 1 ? 'Assignment' : 'Assignments'}
+            </div>
+          </div>
+
+          {assignments.length === 0 ? (
+            <motion.div
+              className="empty-state"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="empty-icon">
+                <FiUser size={48} />
+              </div>
+              <p>No assignments found</p>
+              <small>Create a new assignment to get started</small>
+            </motion.div>
+          ) : (
+            <motion.ul 
+              className="assignment-list"
+              layout
+            >
+              <AnimatePresence>
+                {assignments.map((assignment) => (
+                  <motion.li
+                    key={assignment._id}
+                    layout
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2 }}
+                    whileHover={{ scale: 1.01 }}
+                  >
+                    <div className="assignment-info">
+                      <div className="avatar">
+                        {assignment.captainName?.charAt(0).toUpperCase() || '?'}
+                      </div>
+                      <div className="details">
+                        <h4>{assignment.captainName}</h4>
+                        <div className="tables">
+                          {assignment.tables?.length > 0 ? (
+                            assignment.tables.map((table) => (
+                              <motion.span 
+                                key={table} 
+                                className="table-badge"
+                                layout
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                              >
+                                {table}
+                              </motion.span>
+                            ))
+                          ) : (
+                            <span className="no-tables-badge">
+                              No tables assigned
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="actions">
+                      <motion.button
+                        onClick={() => handleEdit(assignment)}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="edit-btn"
+                        disabled={loading}
+                        aria-label="Edit assignment"
+                      >
+                        <FiEdit2 />
+                      </motion.button>
+                      <motion.button
+                        onClick={() => handleDelete(assignment._id)}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="delete-btn"
+                        disabled={loading}
+                        aria-label="Delete assignment"
+                      >
+                        <FiTrash2 />
+                      </motion.button>
+                    </div>
+                  </motion.li>
+                ))}
+              </AnimatePresence>
+            </motion.ul>
+          )}
+        </motion.div>
+      </div>
     </div>
   );
 };

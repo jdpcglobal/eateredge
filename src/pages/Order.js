@@ -33,15 +33,7 @@ const Order = () => {
   const [selectedAddressId, setSelectedAddressId] = useState(null);
  // Replace with actual user ID
  
- const [isClient, setIsClient] = useState(false);
 
- useEffect(() => {
-   setIsClient(true); // Set to true when the component mounts on the client side
- }, []);
- 
- if (!isClient) {
-   return null; // Return null or a loading spinner during SSR
- }
 
  useEffect(() => {
   const handleTokenExpiration = () => {
