@@ -242,23 +242,25 @@ const Sidebar = ({ setSelectedComponent, selectedComponent }) => {
   className={`sidebar-option ${selectedComponent === 'addcaptain' ? 'active' : ''}`}
   onClick={() => setSelectedComponent('addcaptain')}
 >
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width="24"
-    height="24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="feather feather-image"
-  >
-    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-    <path d="M3 3l18 18" />
-    <path d="M9 9l-2 2 3 3 5-5 4 4" />
-  </svg>
-  <p>Add Captain</p>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  width="24"
+  height="24"
+  fill="none"
+  stroke="currentColor"
+  strokeWidth="2"
+  strokeLinecap="round"
+  strokeLinejoin="round"
+  className="feather feather-user-plus"
+>
+  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+  <circle cx="8.5" cy="7" r="4" />
+  <line x1="20" y1="8" x2="20" y2="14" />
+  <line x1="17" y1="11" x2="23" y2="11" />
+</svg>
+<p>Add Captain</p>
+
 </div>
 
 
@@ -266,23 +268,32 @@ const Sidebar = ({ setSelectedComponent, selectedComponent }) => {
   className={`sidebar-option ${selectedComponent === 'captain' ? 'active' : ''}`}
   onClick={() => setSelectedComponent('captain')}
 >
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width="24"
-    height="24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="feather feather-image"
-  >
-    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-    <path d="M3 3l18 18" />
-    <path d="M9 9l-2 2 3 3 5-5 4 4" />
-  </svg>
-  <p>Manage Captain</p>
+ <svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  strokeWidth="2"
+  strokeLinecap="round"
+  strokeLinejoin="round"
+  className="feather feather-user-cog"
+>
+  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
+  <path d="M6 20v-2a4 4 0 014-4h0a4 4 0 014 4v2" />
+  <circle cx="19" cy="19" r="2" />
+  <path d="M19 15v1" />
+  <path d="M19 21v1" />
+  <path d="M22 18h-1" />
+  <path d="M16 18h-1" />
+  <path d="M21.4 16.6l-.7.7" />
+  <path d="M17.3 20.7l-.7.7" />
+  <path d="M21.4 21.4l-.7-.7" />
+  <path d="M17.3 17.3l-.7-.7" />
+</svg>
+<p>Manage Captain</p>
+
 </div>
 
 
@@ -306,6 +317,30 @@ const Sidebar = ({ setSelectedComponent, selectedComponent }) => {
     <path d="M3 9h18M9 3v18M15 3v18" />
   </svg>
   <p>Manage Table</p>
+</div>
+
+
+<div
+  className={`sidebar-option ${selectedComponent === 'orderhistory' ? 'active' : ''}`}
+  onClick={() => setSelectedComponent('orderhistory')}
+>
+  <svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  width="24"
+  height="24"
+  fill="none"
+  stroke={selectedComponent === 'OrderHistory' ? 'black' : '#007BFF'}
+  strokeWidth="2"
+  strokeLinecap="round"
+  strokeLinejoin="round"
+  className="feather feather-clock"
+>
+  <circle cx="12" cy="12" r="10" />
+  <polyline points="12 6 12 12 16 14" />
+</svg>
+
+  <p>Order-History</p>
 </div>
  
 <div className='space-bottom'>

@@ -20,6 +20,7 @@ import DeliveryFee from '../components/deliveryFee/deliveryFee';
 import Printer from '../components/printer/printer';
 import Addcaptain from '../components/captain/addcaptain';
 import Captain from '../components/managecaptain/captain';
+import Orderhistory from '../components/date-to-date-bill/orderhistory';
 
 const AdminPanel = () => {
   const [selectedComponent, setSelectedComponent] = useState('Orders'); // State to track the selected component
@@ -58,6 +59,8 @@ const AdminPanel = () => {
                       return <Addcaptain />;
                       case 'captain':
                         return <Captain />;
+                         case 'orderhistory':
+                        return <Orderhistory />;
       default:
         return ;
     }

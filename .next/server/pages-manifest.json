@@ -2,6 +2,11 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/sanjaydemo": "pages/sanjaydemo.js",
-  "/api/manage": "pages/api/manage.js"
+  "/AdminPanel": "pages/AdminPanel.js",
+  "/api/captain2": "pages/api/captain2.js",
+  "/api/tablesview": "pages/api/tablesview.js",
+  "/api/vectory": "pages/api/vectory.js",
+  "/api/captains": "pages/api/captains.js",
+  "/api/settable": "pages/api/settable.js",
+  "/MyOrder": "pages/MyOrder.js"
 }

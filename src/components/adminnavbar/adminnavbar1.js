@@ -6,11 +6,11 @@ const index = () => {
     <>
     <div  className='admin-navbar'>
         <div>
-       <img className='logo'  src='logo.png' alt="" />
+       <img className='logo'  src='/logo.png' alt="" />
        <p>Admin Panel</p>
        </div>
        
-       <img className='profile-icon'  src='profile_image.png' alt="" />
+       <img className='profile-icon'  src='/profile_image.png' alt="" />
       
     </div>
     <hr/>
