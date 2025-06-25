@@ -2,6 +2,7 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/sanjaydemo": "pages/sanjaydemo.js",
-  "/api/manage": "pages/api/manage.js"
+  "/api/headerImage": "pages/api/headerImage.js",
+  "/api/categories": "pages/api/categories.js",
+  "/api/items": "pages/api/items.js"
 }
