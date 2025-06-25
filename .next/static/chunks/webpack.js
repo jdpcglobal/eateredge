@@ -162,10 +162,32 @@
 /******/ 	!function() {
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = function(chunkId) {
+<<<<<<< HEAD
+=======
+/******/ 			// return url for filenames based on template
+/******/ 			return "static/chunks/" + chunkId + ".js";
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/get javascript update chunk filename */
+/******/ 	!function() {
+/******/ 		// This function allow to reference all chunks
+/******/ 		__webpack_require__.hu = function(chunkId) {
+/******/ 			// return url for filenames based on template
+/******/ 			return "static/webpack/" + chunkId + "." + __webpack_require__.h() + ".hot-update.js";
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/get mini-css chunk filename */
+/******/ 	!function() {
+/******/ 		// This function allow to reference async chunks
+/******/ 		__webpack_require__.miniCssF = function(chunkId) {
+>>>>>>> 4c77a8dd5aa3274bb98e4b3b217a790d2f9c7f5d
 /******/ 			// return url for filenames based on template
 /******/ 			return undefined;
 /******/ 		};
 /******/ 	}();
+<<<<<<< HEAD
 /******/ 	
 /******/ 	/* webpack/runtime/get javascript update chunk filename */
 /******/ 	!function() {
@@ -184,6 +206,8 @@
 /******/ 			return undefined;
 /******/ 		};
 /******/ 	}();
+=======
+>>>>>>> 4c77a8dd5aa3274bb98e4b3b217a790d2f9c7f5d
 /******/ 	
 /******/ 	/* webpack/runtime/get update manifest filename */
 /******/ 	!function() {
@@ -192,7 +216,11 @@
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	!function() {
+<<<<<<< HEAD
 /******/ 		__webpack_require__.h = function() { return "48a7d10f6ac963f7"; }
+=======
+/******/ 		__webpack_require__.h = function() { return "35f13d221c61a609"; }
+>>>>>>> 4c77a8dd5aa3274bb98e4b3b217a790d2f9c7f5d
 /******/ 	}();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
@@ -1401,6 +1429,14 @@
 /******/ 		chunkLoadingGlobal.forEach(webpackJsonpCallback.bind(null, 0));
 /******/ 		chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
 /******/ 	}();
+<<<<<<< HEAD
+=======
+/******/ 	
+/******/ 	/* webpack/runtime/nonce */
+/******/ 	!function() {
+/******/ 		__webpack_require__.nc = undefined;
+/******/ 	}();
+>>>>>>> 4c77a8dd5aa3274bb98e4b3b217a790d2f9c7f5d
 /******/ 	
 /************************************************************************/
 /******/ 	

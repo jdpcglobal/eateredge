@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // File: D:\NextJs\eateredge\src\app\layout.tsx
+=======
+// File: /Users/sanjay/food/eateredge/src/app/layout.tsx
+>>>>>>> 4c77a8dd5aa3274bb98e4b3b217a790d2f9c7f5d
 import * as entry from '../../../src/app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

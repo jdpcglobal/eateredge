@@ -2,7 +2,17 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
+<<<<<<< HEAD
   "/api/headerImage": "pages/api/headerImage.js",
   "/api/categories": "pages/api/categories.js",
   "/api/items": "pages/api/items.js"
+=======
+  "/AdminPanel": "pages/AdminPanel.js",
+  "/api/captain2": "pages/api/captain2.js",
+  "/api/tablesview": "pages/api/tablesview.js",
+  "/api/vectory": "pages/api/vectory.js",
+  "/api/captains": "pages/api/captains.js",
+  "/api/settable": "pages/api/settable.js",
+  "/MyOrder": "pages/MyOrder.js"
+>>>>>>> 4c77a8dd5aa3274bb98e4b3b217a790d2f9c7f5d
 }
